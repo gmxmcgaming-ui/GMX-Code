@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colon Code Translator</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== REGISTRATION GATE ===== -->
+  <div class="gate-overlay" id="gate">
+    <div class="gate-box">
+      <div class="gate-icon">🔐</div>
+      <h2>Welcome</h2>
+      <p class="gate-sub">Enter your invite code and choose a username to continue</p>
+
+      <label class="gate-label">Invite Code</label>
+      <input type="text" id="gateCode" placeholder="XXXX-XXXX" autocomplete="off">
+
+      <label class="gate-label">Username</label>
+      <input type="text" id="gateName" placeholder="Enter your username" maxlength="20" autocomplete="off">
+
+      <button class="btn primary gate-btn" onclick="submitGate()">Enter</button>
+      <p class="gate-error" id="gateError"></p>
+
+      <p class="gate-admin-hint">🛡️ Admin? <a href="#" onclick="showAdminLogin(); return false;">Click here</a></p>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN LOGIN GATE ===== -->
+  <div class="gate-overlay" id="adminGate">
+    <div class="gate-box">
+      <div class="gate-icon">🛡️</div>
+      <h2>Admin Access</h2>
+      <p class="gate-sub">Enter admin passcode</p>
+
+      <label class="gate-label">Passcode</label>
+      <input type="password" id="gateAdminPass" placeholder="Enter passcode" autocomplete="off">
+
+      <button class="btn primary gate-btn" onclick="submitAdminGate()">Login as Admin</button>
+      <p class="gate-error" id="gateAdminError"></p>
+
+      <p class="gate-admin-hint"><a href="#" onclick="showUserLogin(); return false;">← Back to user login</a></p>
+    </div>
+  </div>
+
+  <!-- ===== MAIN WEBSITE ===== -->
+  <div id="mainSite" style="display:none; width:100%;">
+
+    <!-- Top bar with user info -->
+    <div class="topbar">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <span class="user-name" id="userName">Guest</span>
+          <span class="user-id" id="userId">ID: —</span>
+        </div>
+      </div>
+      <button class="edit-user-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <header class="hero">
+      <div class="hero-badge">🔐 Secret Language</div>
+      <h1>Colon Code Translator</h1>
+      <p class="subtitle">
+        Encode & decode messages using only <code>:</code> <code>,</code> <code>?</code> <code>'</code><br>
+        <span class="rule">Rule: space between letters • double space between words</span>
+      </p>
+    </header>
+
+    <main class="container">
+
+      <!-- CODE → LETTERS -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-icon">🔓</div>
+          <div>
+            <h2>Code → Letters</h2>
+            <p class="card-sub">Paste code and decode it into a phrase</p>
+          </div>
+        </div>
+
+        <textarea id="codeInput" placeholder="Example:  : : : ,   : : : : ,"></textarea>
+
+        <div class="btn-row">
+          <button class="btn primary" onclick="codeToLetters()">Translate</button>
+          <button class="btn ghost" onclick="clearField('codeInput', 'codeOutput')">Clear</button>
+        </div>
+
+        <div class="output-header">
+          <span class="output-label">Output</span>
+          <button class="copy-btn" onclick="copyOutput('codeOutput', event)">📋 Copy</button>
+        </div>
+        <div class="output" id="codeOutput">Your decoded text will appear here…</div>
+      </section>
+
+      <!-- LETTERS → CODE -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-icon">🔒</div>
+          <div>
+            <h2>Letters → Code</h2>
+            <p class="card-sub">Type a phrase and encode it into code</p>
+          </div>
+        </div>
+
+        <textarea id="letterInput" placeholder="Example:  HI BUDDY"></textarea>
+
+        <div class="btn-row">
+          <button class="btn primary" onclick="lettersToCode()">Translate</button>
+          <button class="btn ghost" onclick="clearField('letterInput', 'letterOutput')">Clear</button>
+        </div>
+
+        <div class="output-header">
+          <span class="output-label">Output</span>
+          <button class="copy-btn" onclick="copyOutput('letterOutput', event)">📋 Copy</button>
+        </div>
+        <div class="output" id="letterOutput">Your code will appear here…</div>
+      </section>
+
+    </main>
+
+    <!-- LEGEND -->
+    <section class="legend">
+      <div class="legend-header">
+        <h3>📖 Alphabet Legend</h3>
+        <button class="btn ghost small" onclick="toggleLegend()" id="legendToggle">Hide</button>
+      </div>
+      <div class="legend-grid" id="legendGrid"></div>
+    </section>
+
+    <!-- ADMIN PANEL (only shows for admin) -->
+    <section class="admin-section" id="adminSection" style="display:none;">
+      <div class="admin-header">
+        <h3>🛡️ Admin Panel</h3>
+        <span class="admin-lock unlocked">🔓 Admin</span>
+      </div>
+
+      <!-- Invite code generator -->
+      <div class="admin-block">
+        <h4>🔑 Generate Invite Codes</h4>
+        <p class="admin-desc">Create unique codes for new users. Give a code to someone so they can register.</p>
+        <div class="admin-input-row">
+          <input type="text" id="codeLabel" placeholder="Note (optional, e.g. 'for John')" maxlength="30">
+          <button class="btn primary" onclick="generateInvite()">Generate Code</button>
+        </div>
+        <div class="invite-list" id="inviteList"></div>
+      </div>
+
+      <!-- Registered users -->
+      <div class="admin-block">
+        <h4>👥 Registered Users</h4>
+        <p class="admin-desc">Everyone who has registered with an invite code.</p>
+        <div class="user-list" id="userList"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="admin-block">
+        <h4>📊 Stats</h4>
+        <div class="admin-stats">
+          <div class="stat-card">
+            <span class="stat-label">Total Users</span>
+            <span class="stat-value" id="statUsers">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Unused Codes</span>
+            <span class="stat-value" id="statUnused">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Used Codes</span>
+            <span class="stat-value" id="statUsed">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Your ID</span>
+            <span class="stat-value" id="statAdminId">ADMIN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Every letter is a code. Letters are separated by a space. Words are separated by two spaces.</p>
+    </footer>
+
+  </div>
+
+  <div id="toast" class="toast">✓ Copied!</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
