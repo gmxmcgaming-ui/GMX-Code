@@ -1,193 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Colon Code Translator</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Class Portal</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- ===== REGISTRATION GATE ===== -->
-  <div class="gate-overlay" id="gate">
-    <div class="gate-box">
-      <div class="gate-icon">🔐</div>
-      <h2>Welcome</h2>
-      <p class="gate-sub">Enter your invite code and choose a username to continue</p>
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>Math Class Portal</h2>
+    <p>Sign in to continue</p>
 
-      <label class="gate-label">Invite Code</label>
-      <input type="text" id="gateCode" placeholder="XXXX-XXXX" autocomplete="off">
+    <div class="tabs">
+      <button id="tabStudent" class="active" onclick="switchTab('student')">Student</button>
+      <button id="tabAdmin" onclick="switchTab('admin')">Admin</button>
+    </div>
 
-      <label class="gate-label">Username</label>
-      <input type="text" id="gateName" placeholder="Enter your username" maxlength="20" autocomplete="off">
+    <div id="studentLogin">
+      <input id="sUser" placeholder="Choose a username" />
+      <input id="sCode" placeholder="Enter your access code" />
+      <button onclick="studentLogin()" style="width:100%;margin-top:8px">Login</button>
+      <p style="margin-top:12px;font-size:.8rem">First time? Ask your teacher for a code.</p>
+    </div>
 
-      <button class="btn primary gate-btn" onclick="submitGate()">Enter</button>
-      <p class="gate-error" id="gateError"></p>
-
-      <p class="gate-admin-hint">🛡️ Admin? <a href="#" onclick="showAdminLogin(); return false;">Click here</a></p>
+    <div id="adminLogin" class="hidden">
+      <input id="aPass" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')adminLogin()" />
+      <button onclick="adminLogin()" style="width:100%;margin-top:8px">Login as Admin</button>
     </div>
   </div>
+</div>
 
-  <!-- ===== ADMIN LOGIN GATE ===== -->
-  <div class="gate-overlay" id="adminGate">
-    <div class="gate-box">
-      <div class="gate-icon">🛡️</div>
-      <h2>Admin Access</h2>
-      <p class="gate-sub">Enter admin passcode</p>
+<!-- ================= APP ================= -->
+<div id="app" class="app-layout hidden">
 
-      <label class="gate-label">Passcode</label>
-      <input type="password" id="gateAdminPass" placeholder="Enter passcode" autocomplete="off">
-
-      <button class="btn primary gate-btn" onclick="submitAdminGate()">Login as Admin</button>
-      <p class="gate-error" id="gateAdminError"></p>
-
-      <p class="gate-admin-hint"><a href="#" onclick="showUserLogin(); return false;">← Back to user login</a></p>
-    </div>
-  </div>
-
-  <!-- ===== MAIN WEBSITE ===== -->
-  <div id="mainSite" style="display:none; width:100%;">
-
-    <!-- Top bar with user info -->
-    <div class="topbar">
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <div class="user-details">
-          <span class="user-name" id="userName">Guest</span>
-          <span class="user-id" id="userId">ID: —</span>
-        </div>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">∑</div>
+      <div>
+        <div class="brand-title">Math Portal</div>
+        <div class="brand-sub" id="whoami">—</div>
       </div>
-      <button class="edit-user-btn" onclick="logout()">Logout</button>
     </div>
 
-    <header class="hero">
-      <div class="hero-badge">🔐 Secret Language</div>
-      <h1>Colon Code Translator</h1>
-      <p class="subtitle">
-        Encode & decode messages using only <code>:</code> <code>,</code> <code>?</code> <code>'</code><br>
-        <span class="rule">Rule: space between letters • double space between words</span>
-      </p>
-    </header>
+    <nav class="nav">
+      <button class="nav-item active" data-section="homework" onclick="showSection('homework')">
+        <span class="nav-ico">📚</span> Homework
+      </button>
+      <button class="nav-item" data-section="chat" onclick="showSection('chat')">
+        <span class="nav-ico">💬</span> Class Chat
+      </button>
+      <button class="nav-item" data-section="leaderboard" onclick="showSection('leaderboard')">
+        <span class="nav-ico">🏆</span> Leaderboard
+      </button>
+      <button class="nav-item" data-section="shop" onclick="showSection('shop')">
+        <span class="nav-ico">🛍️</span> Shop
+      </button>
+      <button class="nav-item" data-section="calc" onclick="showSection('calc')">
+        <span class="nav-ico">🧮</span> Calculator
+      </button>
+      <div class="nav-divider"></div>
+      <button class="nav-item admin-only hidden" data-section="admin" onclick="showSection('admin')">
+        <span class="nav-ico">⚙️</span> Admin Panel
+      </button>
+    </nav>
 
-    <main class="container">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </aside>
 
-      <!-- CODE → LETTERS -->
-      <section class="card">
-        <div class="card-header">
-          <div class="card-icon">🔓</div>
-          <div>
-            <h2>Code → Letters</h2>
-            <p class="card-sub">Paste code and decode it into a phrase</p>
-          </div>
-        </div>
+  <main class="main">
 
-        <textarea id="codeInput" placeholder="Example:  : : : ,   : : : : ,"></textarea>
-
-        <div class="btn-row">
-          <button class="btn primary" onclick="codeToLetters()">Translate</button>
-          <button class="btn ghost" onclick="clearField('codeInput', 'codeOutput')">Clear</button>
-        </div>
-
-        <div class="output-header">
-          <span class="output-label">Output</span>
-          <button class="copy-btn" onclick="copyOutput('codeOutput', event)">📋 Copy</button>
-        </div>
-        <div class="output" id="codeOutput">Your decoded text will appear here…</div>
-      </section>
-
-      <!-- LETTERS → CODE -->
-      <section class="card">
-        <div class="card-header">
-          <div class="card-icon">🔒</div>
-          <div>
-            <h2>Letters → Code</h2>
-            <p class="card-sub">Type a phrase and encode it into code</p>
-          </div>
-        </div>
-
-        <textarea id="letterInput" placeholder="Example:  HI BUDDY"></textarea>
-
-        <div class="btn-row">
-          <button class="btn primary" onclick="lettersToCode()">Translate</button>
-          <button class="btn ghost" onclick="clearField('letterInput', 'letterOutput')">Clear</button>
-        </div>
-
-        <div class="output-header">
-          <span class="output-label">Output</span>
-          <button class="copy-btn" onclick="copyOutput('letterOutput', event)">📋 Copy</button>
-        </div>
-        <div class="output" id="letterOutput">Your code will appear here…</div>
-      </section>
-
-    </main>
-
-    <!-- LEGEND -->
-    <section class="legend">
-      <div class="legend-header">
-        <h3>📖 Alphabet Legend</h3>
-        <button class="btn ghost small" onclick="toggleLegend()" id="legendToggle">Hide</button>
-      </div>
-      <div class="legend-grid" id="legendGrid"></div>
+    <section id="sec-homework" class="section">
+      <h1 class="page-title">📚 Homework</h1>
+      <div id="hwList"><div class="empty">No homework posted yet.</div></div>
     </section>
 
-    <!-- ADMIN PANEL (only shows for admin) -->
-    <section class="admin-section" id="adminSection" style="display:none;">
-      <div class="admin-header">
-        <h3>🛡️ Admin Panel</h3>
-        <span class="admin-lock unlocked">🔓 Admin</span>
-      </div>
-
-      <!-- Invite code generator -->
-      <div class="admin-block">
-        <h4>🔑 Generate Invite Codes</h4>
-        <p class="admin-desc">Create unique codes for new users. Give a code to someone so they can register.</p>
-        <div class="admin-input-row">
-          <input type="text" id="codeLabel" placeholder="Note (optional, e.g. 'for John')" maxlength="30">
-          <button class="btn primary" onclick="generateInvite()">Generate Code</button>
-        </div>
-        <div class="invite-list" id="inviteList"></div>
-      </div>
-
-      <!-- Registered users -->
-      <div class="admin-block">
-        <h4>👥 Registered Users</h4>
-        <p class="admin-desc">Everyone who has registered with an invite code.</p>
-        <div class="user-list" id="userList"></div>
-      </div>
-
-      <!-- Stats -->
-      <div class="admin-block">
-        <h4>📊 Stats</h4>
-        <div class="admin-stats">
-          <div class="stat-card">
-            <span class="stat-label">Total Users</span>
-            <span class="stat-value" id="statUsers">0</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">Unused Codes</span>
-            <span class="stat-value" id="statUnused">0</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">Used Codes</span>
-            <span class="stat-value" id="statUsed">0</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">Your ID</span>
-            <span class="stat-value" id="statAdminId">ADMIN</span>
-          </div>
+    <section id="sec-chat" class="section hidden">
+      <h1 class="page-title">💬 Class Chat</h1>
+      <div class="card chat-card">
+        <div id="chatBox"></div>
+        <div class="row">
+          <input id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()" />
+          <button onclick="sendChat()">Send</button>
         </div>
       </div>
     </section>
 
-    <footer>
-      <p>Every letter is a code. Letters are separated by a space. Words are separated by two spaces.</p>
-    </footer>
+    <section id="sec-leaderboard" class="section hidden">
+      <h1 class="page-title">🏆 Top 10 Students</h1>
+      <div id="leaderboard"><div class="empty">No marks uploaded yet.</div></div>
+    </section>
 
+    <section id="sec-shop" class="section hidden">
+      <h1 class="page-title">🛍️ Buy</h1>
+      <div id="shopGrid" class="shop-grid"><div class="empty">No items yet.</div></div>
+    </section>
+
+    <section id="sec-calc" class="section hidden">
+      <h1 class="page-title">🧮 Math Calculator</h1>
+
+      <div class="calc-tabs">
+        <button class="calc-tab active" data-calc="basic" onclick="switchCalc('basic')">Basic</button>
+        <button class="calc-tab" data-calc="scientific" onclick="switchCalc('scientific')">Scientific</button>
+        <button class="calc-tab" data-calc="graph" onclick="switchCalc('graph')">Graph</button>
+        <button class="calc-tab" data-calc="geometry" onclick="switchCalc('geometry')">Geometry</button>
+      </div>
+
+      <div id="calc-basic" class="calc-panel">
+        <div class="card calc-card">
+          <div class="calc-display">
+            <div class="calc-history" id="basicHistory">&nbsp;</div>
+            <div class="calc-output" id="basicOutput">0</div>
+          </div>
+          <div class="calc-keys">
+            <button class="calc-btn danger" onclick="basicClear()">C</button>
+            <button class="calc-btn" onclick="basicBack()">⌫</button>
+            <button class="calc-btn" onclick="basicInput('%')">%</button>
+            <button class="calc-btn op" onclick="basicInput('/')">÷</button>
+            <button class="calc-btn" onclick="basicInput('7')">7</button>
+            <button class="calc-btn" onclick="basicInput('8')">8</button>
+            <button class="calc-btn" onclick="basicInput('9')">9</button>
+            <button class="calc-btn op" onclick="basicInput('*')">×</button>
+            <button class="calc-btn" onclick="basicInput('4')">4</button>
+            <button class="calc-btn" onclick="basicInput('5')">5</button>
+            <button class="calc-btn" onclick="basicInput('6')">6</button>
+            <button class="calc-btn op" onclick="basicInput('-')">−</button>
+            <button class="calc-btn" onclick="basicInput('1')">1</button>
+            <button class="calc-btn" onclick="basicInput('2')">2</button>
+            <button class="calc-btn" onclick="basicInput('3')">3</button>
+            <button class="calc-btn op" onclick="basicInput('+')">+</button>
+            <button class="calc-btn" onclick="basicInput('(')">(</button>
+            <button class="calc-btn" onclick="basicInput('0')">0</button>
+            <button class="calc-btn" onclick="basicInput('.')">.</button>
+            <button class="calc-btn eq" onclick="basicEquals()">=</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="calc-scientific" class="calc-panel hidden">
+        <div class="card calc-card">
+          <div class="calc-display">
+            <div class="calc-history" id="sciHistory">&nbsp;</div>
+            <div class="calc-output" id="sciOutput">0</div>
+          </div>
+          <div class="calc-keys sci">
+            <button class="calc-btn" onclick="sciFn('sin')">sin</button>
+            <button class="calc-btn" onclick="sciFn('cos')">cos</button>
+            <button class="calc-btn" onclick="sciFn('tan')">tan</button>
+            <button class="calc-btn" onclick="sciFn('log')">log</button>
+            <button class="calc-btn" onclick="sciFn('ln')">ln</button>
+            <button class="calc-btn" onclick="sciFn('sqrt')">√</button>
+            <button class="calc-btn" onclick="sciFn('^')">x^y</button>
+            <button class="calc-btn" onclick="sciFn('pi')">π</button>
+            <button class="calc-btn" onclick="sciFn('e')">e</button>
+            <button class="calc-btn" onclick="sciFn('fact')">n!</button>
+            <button class="calc-btn" onclick="sciInput('(')">(</button>
+            <button class="calc-btn" onclick="sciInput(')')">)</button>
+            <button class="calc-btn" onclick="sciInput('%')">%</button>
+            <button class="calc-btn op" onclick="sciInput('/')">÷</button>
+            <button class="calc-btn danger" onclick="sciClear()">C</button>
+            <button class="calc-btn" onclick="sciInput('7')">7</button>
+            <button class="calc-btn" onclick="sciInput('8')">8</button>
+            <button class="calc-btn" onclick="sciInput('9')">9</button>
+            <button class="calc-btn op" onclick="sciInput('*')">×</button>
+            <button class="calc-btn" onclick="sciBack()">⌫</button>
+            <button class="calc-btn" onclick="sciInput('4')">4</button>
+            <button class="calc-btn" onclick="sciInput('5')">5</button>
+            <button class="calc-btn" onclick="sciInput('6')">6</button>
+            <button class="calc-btn op" onclick="sciInput('-')">−</button>
+            <button class="calc-btn eq" onclick="sciEquals()" style="grid-row:span 3">=</button>
+            <button class="calc-btn" onclick="sciInput('1')">1</button>
+            <button class="calc-btn" onclick="sciInput('2')">2</button>
+            <button class="calc-btn" onclick="sciInput('3')">3</button>
+            <button class="calc-btn op" onclick="sciInput('+')">+</button>
+            <button class="calc-btn" onclick="sciInput('0')">0</button>
+            <button class="calc-btn" onclick="sciInput('.')">.</button>
+            <button class="calc-btn" onclick="sciInput('-')">±</button>
+            <button class="calc-btn" disabled style="opacity:.3">·</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="calc-graph" class="calc-panel hidden">
+        <div class="card">
+          <h2>Graph a Function</h2>
+          <p style="color:var(--muted);font-size:.9rem;margin-bottom:10px">Use x as the variable. Example: <code>sin(x)</code>, <code>x^2 - 3</code>, <code>1/x</code></p>
+          <div class="row">
+            <input id="graphInput" placeholder="f(x) = ..." value="x^2" />
+            <button onclick="drawGraph()">Plot</button>
+          </div>
+          <canvas id="graphCanvas" width="800" height="500" style="width:100%;max-width:100%;margin-top:14px;background:#0f172a;border-radius:10px"></canvas>
+        </div>
+      </div>
+
+      <div id="calc-geometry" class="calc-panel hidden">
+        <div class="card">
+          <h2>Geometry Calculator</h2>
+          <select id="geoShape" onchange="renderGeoInputs()">
+            <option value="circle">Circle</option>
+            <option value="square">Square</option>
+            <option value="rect">Rectangle</option>
+            <option value="triangle">Triangle (base × height)</option>
+            <option value="sphere">Sphere</option>
+            <option value="cylinder">Cylinder</option>
+          </select>
+          <div id="geoInputs" style="margin-top:12px"></div>
+          <button onclick="calcGeometry()" style="margin-top:10px">Calculate</button>
+          <div id="geoResult" class="geo-result"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="sec-admin" class="section hidden">
+      <h1 class="page-title">⚙️ Admin Panel</h1>
+
+      <div class="card">
+        <h2>Access Codes</h2>
+        <p class="muted">Generate codes and give them to students. Each code works once.</p>
+        <button onclick="generateCode()">+ Generate New Code</button>
+        <div id="codesList" class="codes-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>Post Homework</h2>
+        <input id="hwTitle" placeholder="Title (e.g. Chapter 5 exercises)" />
+        <textarea id="hwDesc" placeholder="Description / instructions"></textarea>
+        <input id="hwDue" type="date" />
+        <label class="file-label">
+          <input id="hwFile" type="file" accept="image/*,.pdf" />
+          <span>📎 Attach image or PDF (optional)</span>
+        </label>
+        <button onclick="addHomework()" style="margin-top:8px">Post Homework</button>
+        <div id="hwAdminList" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Student Marks (Leaderboard)</h2>
+        <p class="muted">Upload name + marks. Top 10 are ranked automatically.</p>
+        <div class="row">
+          <input id="mName" placeholder="Student name" />
+          <input id="mMarks" type="number" placeholder="Marks" />
+          <button onclick="addMark()">Add</button>
+        </div>
+        <div id="marksList" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Shop Items</h2>
+        <input id="shopName" placeholder="Item name" />
+        <textarea id="shopDesc" placeholder="Description"></textarea>
+        <input id="shopPrice" type="number" placeholder="Price" />
+        <input id="shopImg" type="file" accept="image/*" />
+        <button onclick="addShopItem()" style="margin-top:8px">Add Item</button>
+        <div id="shopAdminList" style="margin-top:16px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Danger Zone</h2>
+        <button class="danger" onclick="clearChat()">Clear Chat</button>
+        <button class="danger" onclick="clearAll()" style="margin-left:8px">Reset Everything</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-icon" id="modalIcon">✓</div>
+    <h3 id="modalTitle">Success</h3>
+    <p id="modalMsg"></p>
+    <div class="modal-actions" id="modalActions"></div>
   </div>
+</div>
 
-  <div id="toast" class="toast">✓ Copied!</div>
+<div id="toast" class="toast"></div>
 
-  <script src="script.js"></script>
+<!-- ========== FIREBASE ========== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC1WNyn5dNni78LIZ-HnatricygPxbgux8",
+    authDomain: "mathspace-f5948.firebaseapp.com",
+    projectId: "mathspace-f5948",
+    storageBucket: "mathspace-f5948.firebasestorage.app",
+    messagingSenderId: "113827715561",
+    appId: "1:113827715561:web:6c21ba31e8aff2fe9c1378"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getFirestore(app);
+  window.storage = getStorage(app);
+
+  window.fb = {
+    collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc,
+    ref, uploadBytes, getDownloadURL
+  };
+
+  window.firebaseReady = true;
+  console.log("✅ Firebase loaded");
+</script>
+
+<script src="script.js"></script>
 </body>
 </html>
